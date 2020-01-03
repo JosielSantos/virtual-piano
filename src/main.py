@@ -7,6 +7,10 @@ from keymap import Keymap
 from piano import Piano
 
 class PianoApp(wx.App):
+    multi_voice = False
+    current_channel = 0
+    channels = {}
+
     def __init__(self, *args, **kwargs):
         self.frozen = getattr(sys, 'frozen', False)
         if self.frozen:
@@ -14,7 +18,7 @@ class PianoApp(wx.App):
         else:
             self.app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.start_note = 48
-        self.current_instrument = 0
+        self.channels[0] = {'instrument': 0}
         wx.App.__init__(self, *args, **kwargs)
 
     def OnInit(self):
@@ -36,7 +40,11 @@ class PianoApp(wx.App):
 
     def init_piano(self):
         self.piano = Piano()
-        self.piano.set_instrument(self.current_instrument)
+        self.set_instrument(self.channels[0]['instrument'], self.current_channel)
+
+    def set_instrument(self, instrument_id, channel):
+        self.channels[channel]['instrument'] = instrument_id
+        self.piano.set_instrument(instrument_id, channel)
 
     def init_ui(self):
         self.mainFrame = wx.Frame(parent = None, id = -1, title = 'Virtual Piano')
@@ -48,18 +56,34 @@ class PianoApp(wx.App):
         note = self.get_note_from_key_event(evt)
         if note is None:
             key = evt.GetKeyCode()
-            if key == wx.WXK_RIGHT:
+            if key == wx.WXK_RIGHT and not self.multi_voice:
                 self.next_instrument()
-            elif key == wx.WXK_LEFT:
+            elif key == wx.WXK_LEFT and not self.multi_voice:
                 self.previous_instrument()
             elif key == wx.WXK_UP:
                 self.octave_up()
             elif key == wx.WXK_DOWN:
                 self.octave_down()
+            elif key == wx.WXK_PAGEUP and not self.multi_voice:
+                self.next_channel()
+            elif key == wx.WXK_PAGEDOWN and not self.multi_voice :
+                self.previous_channel()
+            elif key == wx.WXK_BACK:
+                self.all_notes_off()
+                self.multi_voice = not self.multi_voice
+            elif key == wx.WXK_DELETE:
+                self.all_notes_off()
+                if self.current_channel > 0:
+                    self.channels.pop(self.current_channel)
+                    self.previous_channel()
         else:
             if note not in self.notes_on:
                 self.notes_on.append(note)
-                self.piano.note_on(note)
+                if self.multi_voice:
+                    for chan in range(len(self.channels)):
+                        self.piano.note_on(note, channel = chan)
+                else:
+                    self.piano.note_on(note, channel = self.current_channel)
 
     def on_key_up(self, evt):
         note = self.get_note_from_key_event(evt)
@@ -67,7 +91,11 @@ class PianoApp(wx.App):
             return
         if note in self.notes_on:
             self.notes_on.remove(note)
-            self.piano.note_off(note)
+            if self.multi_voice:
+                for chan in range(len(self.channels)):
+                    self.piano.note_off(note, channel = chan)
+            else:
+                self.piano.note_off(note, channel = self.current_channel)
 
     def get_note_from_key_event(self, evt):
         key = evt.GetUnicodeKey()
@@ -76,16 +104,18 @@ class PianoApp(wx.App):
             return self.keymap[key] if key in self.keymap else None
 
     def next_instrument(self):
-        if self.current_instrument == 127:
+        if self.channels[self.current_channel]['instrument'] == 127:
             return
-        self.current_instrument += 1
-        self.piano.set_instrument(self.current_instrument)
+            self.all_notes_off()
+        self.channels[self.current_channel]['instrument'] += 1
+        self.set_instrument(self.channels[self.current_channel]['instrument'], self.current_channel)
 
     def previous_instrument(self):
-        if self.current_instrument == 0:
+        if self.channels[self.current_channel]['instrument'] == 0:
             return
-        self.current_instrument -= 1
-        self.piano.set_instrument(self.current_instrument)
+            self.all_notes_off()
+        self.channels[self.current_channel]['instrument'] -= 1
+        self.set_instrument(self.channels[self.current_channel]['instrument'], self.current_channel)
 
     def octave_down(self):
         if self.start_note == 0:
@@ -101,10 +131,26 @@ class PianoApp(wx.App):
         self.start_note += 12
         self.organize_notes()
 
+    def next_channel(self):
+        if self.current_channel == 15:
+            return
+        self.all_notes_off()
+        self.current_channel += 1
+        if self.current_channel not in self.channels:
+            self.channels[self.current_channel] = {}
+            self.set_instrument(0, self.current_channel)
+
+    def previous_channel(self):
+        if self.current_channel == 0:
+            return
+        self.all_notes_off()
+        self.current_channel -= 1
+
     def all_notes_off(self):
         for note in self.notes_on:
             self.notes_on.remove(note)
-            self.piano.note_off(note)
+            for chan in range(self.len(self.channels)):
+                self.piano.note_off(note, channel = chan)
 
 
 if __name__ == '__main__':
