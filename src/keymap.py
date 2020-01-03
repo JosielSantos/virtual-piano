@@ -13,7 +13,8 @@ class Keymap(OrderedDict):
         start_note = self.get_start_note()
         key_list = self.get_key_list()
         for i in range(len(key_list)):
-            self[key_list[i]] = start_note + i
+            key = key_list[i].upper()
+            self[key] = start_note + i
 
     def get_start_note(self):
         return self.start_note
