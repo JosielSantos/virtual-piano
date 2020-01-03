@@ -14,6 +14,7 @@ class PianoApp(wx.App):
         else:
             self.app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.start_note = 48
+        self.current_instrument = 0
         wx.App.__init__(self, *args, **kwargs)
 
     def OnInit(self):
@@ -32,6 +33,7 @@ class PianoApp(wx.App):
 
     def init_piano(self):
         self.piano = Piano()
+        self.piano.set_instrument(self.current_instrument)
 
     def init_ui(self):
         self.mainFrame = wx.Frame(parent = None, id = -1, title = 'Virtual Piano')
@@ -42,10 +44,15 @@ class PianoApp(wx.App):
     def on_key_down(self, evt):
         note = self.get_note_from_key_event(evt)
         if note is None:
-            return
-        if note not in self.notes_on:
-            self.notes_on.append(note)
-            self.piano.note_on(note)
+            key = evt.GetKeyCode()
+            if key == wx.WXK_RIGHT:
+                self.next_instrument()
+            elif key == wx.WXK_LEFT:
+                self.previous_instrument()
+        else:
+            if note not in self.notes_on:
+                self.notes_on.append(note)
+                self.piano.note_on(note)
 
     def on_key_up(self, evt):
         note = self.get_note_from_key_event(evt)
@@ -60,6 +67,18 @@ class PianoApp(wx.App):
         if key != wx.WXK_NONE:
             key = chr(key)
             return self.keymap[key] if key in self.keymap else None
+
+    def next_instrument(self):
+        if self.current_instrument == 127:
+            return
+        self.current_instrument += 1
+        self.piano.set_instrument(self.current_instrument)
+
+    def previous_instrument(self):
+        if self.current_instrument == 0:
+            return
+        self.current_instrument -= 1
+        self.piano.set_instrument(self.current_instrument)
 
 
 if __name__ == '__main__':
