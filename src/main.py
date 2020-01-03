@@ -28,6 +28,9 @@ class PianoApp(wx.App):
         keymap_filename = 'pianoeletronico.kmp'
         self.keymap = Keymap()
         self.keymap.load_file(os.path.join(self.app_dir, 'resources', 'keymaps', keymap_filename))
+        self.organize_notes()
+
+    def organize_notes(self):
         self.keymap.set_start_note(self.start_note)
         self.keymap.organize_notes()
 
@@ -49,6 +52,10 @@ class PianoApp(wx.App):
                 self.next_instrument()
             elif key == wx.WXK_LEFT:
                 self.previous_instrument()
+            elif key == wx.WXK_UP:
+                self.octave_up()
+            elif key == wx.WXK_DOWN:
+                self.octave_down()
         else:
             if note not in self.notes_on:
                 self.notes_on.append(note)
@@ -79,6 +86,25 @@ class PianoApp(wx.App):
             return
         self.current_instrument -= 1
         self.piano.set_instrument(self.current_instrument)
+
+    def octave_down(self):
+        if self.start_note == 0:
+            return
+        self.all_notes_off()
+        self.start_note -= 12
+        self.organize_notes()
+
+    def octave_up(self):
+        if self.start_note == 120:
+            return
+        self.all_notes_off()
+        self.start_note += 12
+        self.organize_notes()
+
+    def all_notes_off(self):
+        for note in self.notes_on:
+            self.notes_on.remove(note)
+            self.piano.note_off(note)
 
 
 if __name__ == '__main__':

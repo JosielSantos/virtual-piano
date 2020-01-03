@@ -3,4 +3,5 @@ A midi virtual piano
 
 ## Using
 
-* Right and left arrow: next and previous instrument
+* Right / left arrow: Next / previous instrument
+* Up / down arrow: Octave up / down
