@@ -8,3 +8,4 @@ A midi virtual piano
 * Pageup / Pagedown: Next / previous channel
 * Backspace: Multi voice with selected channels
 * Delete: Deletes the actual channel and go to the previous one (channel 1 can not be deleted)
+* F8 / F9: Volume down / up

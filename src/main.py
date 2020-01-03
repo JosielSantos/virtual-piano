@@ -18,7 +18,7 @@ class PianoApp(wx.App):
         else:
             self.app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.start_note = 48
-        self.channels[0] = {'instrument': 0}
+        self.channels[0] = self.make_channel(0, 127)
         wx.App.__init__(self, *args, **kwargs)
 
     def OnInit(self):
@@ -76,14 +76,18 @@ class PianoApp(wx.App):
                 if self.current_channel > 0:
                     self.channels.pop(self.current_channel)
                     self.previous_channel()
+            elif key == wx.WXK_F8:
+                self.volume_down()
+            elif key == wx.WXK_F9:
+                self.volume_up()
         else:
             if note not in self.notes_on:
                 self.notes_on.append(note)
                 if self.multi_voice:
                     for chan in range(len(self.channels)):
-                        self.piano.note_on(note, channel = chan)
+                        self.piano.note_on(note, volume = self.channels[chan]['volume'], channel = chan)
                 else:
-                    self.piano.note_on(note, channel = self.current_channel)
+                    self.piano.note_on(note, volume = self.channels[self.current_channel]['volume'], channel = self.current_channel)
 
     def on_key_up(self, evt):
         note = self.get_note_from_key_event(evt)
@@ -93,9 +97,9 @@ class PianoApp(wx.App):
             self.notes_on.remove(note)
             if self.multi_voice:
                 for chan in range(len(self.channels)):
-                    self.piano.note_off(note, channel = chan)
+                    self.piano.note_off(note, volume = self.channels[chan]['volume'], channel = chan)
             else:
-                self.piano.note_off(note, channel = self.current_channel)
+                self.piano.note_off(note, volume = self.channels[self.current_channel]['volume'], channel = self.current_channel)
 
     def get_note_from_key_event(self, evt):
         key = evt.GetUnicodeKey()
@@ -137,7 +141,7 @@ class PianoApp(wx.App):
         self.all_notes_off()
         self.current_channel += 1
         if self.current_channel not in self.channels:
-            self.channels[self.current_channel] = {}
+            self.channels[self.current_channel] = self.make_channel(0, 127)
             self.set_instrument(0, self.current_channel)
 
     def previous_channel(self):
@@ -146,11 +150,33 @@ class PianoApp(wx.App):
         self.all_notes_off()
         self.current_channel -= 1
 
+    def volume_down(self):
+        if self.channels[self.current_channel]['volume'] == 0:
+            return
+        if self.channels[self.current_channel]['volume'] < 10:
+            self.channels[self.current_channel]['volume'] = 0
+        else:
+            self.channels[self.current_channel]['volume'] -= 10
+
+    def volume_up(self):
+        if self.channels[self.current_channel]['volume'] == 127:
+            return
+        if self.channels[self.current_channel]['volume'] >= 118:
+            self.channels[self.current_channel]['volume'] = 127
+        else:
+            self.channels[self.current_channel]['volume'] += 10
+
     def all_notes_off(self):
         for note in self.notes_on:
             self.notes_on.remove(note)
             for chan in range(self.len(self.channels)):
                 self.piano.note_off(note, channel = chan)
+
+    def make_channel(self, instrument_id, volume = 127):
+        return {
+            'instrument': instrument_id,
+            'volume': volume,
+        }
 
 
 if __name__ == '__main__':
