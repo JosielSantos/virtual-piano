@@ -4,6 +4,7 @@ import sys
 import wx
 
 from keymap import Keymap
+import midi
 from piano import Piano
 
 class PianoApp(wx.App):
@@ -40,7 +41,8 @@ class PianoApp(wx.App):
         self.keymap.organize_notes()
 
     def init_piano(self):
-        self.piano = Piano()
+        self.midi = midi.Midi()
+        self.piano = Piano(midi.Output(self.midi.get_default_output_id(), 0))
         self.set_instrument(self.channels[0]['instrument'], self.current_channel)
 
     def set_instrument(self, instrument_id, channel):
