@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from char_utils import unicode_workaround
 import validate
 
 class Note:
@@ -51,7 +52,7 @@ class NotesManager(OrderedDict):
     def organize_notes(self):
         start_note = self.get_start_note()
         for i in range(len(self.__key_list)):
-            key = self.__key_list[i].upper()
+            key = unicode_workaround(self.__key_list[i].upper())
             self[key] = Note(start_note + i)
 
     def get_start_note(self):

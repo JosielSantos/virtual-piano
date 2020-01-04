@@ -3,8 +3,9 @@ import sys
 
 import wx
 
-from note import NotesManager
+from char_utils import unicode_workaround
 import midi
+from note import NotesManager
 from piano import Piano
 
 class PianoApp(wx.App):
@@ -76,7 +77,8 @@ class PianoApp(wx.App):
     def get_note_from_key_event(self, evt):
         key = evt.GetUnicodeKey()
         if key != wx.WXK_NONE:
-            key = chr(key)
+            if key > 127:
+                key = unicode_workaround(chr(key).encode('utf-8'))
             return self.piano.notes_manager[key] if key in self.piano.notes_manager else None
 
     def toggle_multi_voice(self, evt):
