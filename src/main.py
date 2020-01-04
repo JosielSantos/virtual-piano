@@ -7,6 +7,7 @@ from keymap import Keymap
 from piano import Piano
 
 class PianoApp(wx.App):
+    functions_keymap = {}
     multi_voice = False
     current_channel = 0
     channels = {}
@@ -50,36 +51,26 @@ class PianoApp(wx.App):
         self.mainFrame = wx.Frame(parent = None, id = -1, title = 'Virtual Piano')
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         self.Bind(wx.EVT_KEY_UP, self.on_key_up)
+        self.functions_keymap = {
+            wx.WXK_RIGHT: self.next_instrument,
+            wx.WXK_LEFT: self.previous_instrument,
+            wx.WXK_UP: self.octave_up,
+            wx.WXK_DOWN: self.octave_down,
+            wx.WXK_PAGEUP: self.next_channel,
+            wx.WXK_PAGEDOWN: self.previous_channel,
+            wx.WXK_BACK: self.toggle_multi_voice,
+            wx.WXK_DELETE: self.delete_current_channel,
+            wx.WXK_F8: self.volume_down,
+            wx.WXK_F9: self.volume_up,
+        }
         self.mainFrame.Show(True)
 
     def on_key_down(self, evt):
         note = self.get_note_from_key_event(evt)
         if note is None:
             key = evt.GetKeyCode()
-            if key == wx.WXK_RIGHT and not self.multi_voice:
-                self.next_instrument()
-            elif key == wx.WXK_LEFT and not self.multi_voice:
-                self.previous_instrument()
-            elif key == wx.WXK_UP:
-                self.octave_up()
-            elif key == wx.WXK_DOWN:
-                self.octave_down()
-            elif key == wx.WXK_PAGEUP and not self.multi_voice:
-                self.next_channel()
-            elif key == wx.WXK_PAGEDOWN and not self.multi_voice :
-                self.previous_channel()
-            elif key == wx.WXK_BACK:
-                self.all_notes_off()
-                self.multi_voice = not self.multi_voice
-            elif key == wx.WXK_DELETE:
-                self.all_notes_off()
-                if self.current_channel > 0:
-                    self.channels.pop(self.current_channel)
-                    self.previous_channel()
-            elif key == wx.WXK_F8:
-                self.volume_down()
-            elif key == wx.WXK_F9:
-                self.volume_up()
+            if key in self.functions_keymap:
+                self.functions_keymap[key]()
         else:
             if note not in self.notes_on:
                 self.notes_on.append(note)
@@ -149,6 +140,16 @@ class PianoApp(wx.App):
             return
         self.all_notes_off()
         self.current_channel -= 1
+
+    def toggle_multi_voice(self):
+        self.all_notes_off()
+        self.multi_voice = not self.multi_voice
+
+    def delete_current_channel(self):
+        self.all_notes_off()
+        if self.current_channel > 0:
+            self.channels.pop(self.current_channel)
+            self.previous_channel()
 
     def volume_down(self):
         if self.channels[self.current_channel]['volume'] == 0:
