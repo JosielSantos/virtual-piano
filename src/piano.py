@@ -9,11 +9,11 @@ class Piano:
         del self.output
         midi.quit()
 
-    def note_on(self, note, volume = 127, channel = 0):
+    def note_on(self, note, volume , channel):
         self.output.note_on(note, volume, channel)
 
-    def note_off(self, note, volume = 127, channel = 0):
-        self.output.note_off(note, volume, channel)
+    def note_off(self, note, channel):
+        self.output.note_off(note, 0, channel)
 
-    def set_instrument(self, instrument_id, channel = 0):
+    def set_instrument(self, instrument_id, channel):
         self.output.set_instrument(instrument_id, channel)

@@ -76,9 +76,9 @@ class PianoApp(wx.App):
                 self.notes_on.append(note)
                 if self.multi_voice:
                     for chan in range(len(self.channels)):
-                        self.piano.note_on(note, volume = self.channels[chan]['volume'], channel = chan)
+                        self.piano.note_on(note, self.channels[chan]['volume'], chan)
                 else:
-                    self.piano.note_on(note, volume = self.channels[self.current_channel]['volume'], channel = self.current_channel)
+                    self.piano.note_on(note, self.channels[self.current_channel]['volume'], self.current_channel)
 
     def on_key_up(self, evt):
         note = self.get_note_from_key_event(evt)
@@ -88,9 +88,9 @@ class PianoApp(wx.App):
             self.notes_on.remove(note)
             if self.multi_voice:
                 for chan in range(len(self.channels)):
-                    self.piano.note_off(note, volume = self.channels[chan]['volume'], channel = chan)
+                    self.piano.note_off(note, chan)
             else:
-                self.piano.note_off(note, volume = self.channels[self.current_channel]['volume'], channel = self.current_channel)
+                self.piano.note_off(note, self.current_channel)
 
     def get_note_from_key_event(self, evt):
         key = evt.GetUnicodeKey()
@@ -171,7 +171,7 @@ class PianoApp(wx.App):
         for note in self.notes_on:
             self.notes_on.remove(note)
             for chan in range(self.len(self.channels)):
-                self.piano.note_off(note, channel = chan)
+                self.piano.note_off(note, chan)
 
     def make_channel(self, instrument_id, volume = 127):
         return {
