@@ -27,7 +27,7 @@ class PianoApp(wx.App):
     def init_piano(self):
         keymap_filename = 'pianoeletronico.kmp'
         keymap = Keymap()
-        keymap.load_file(os.path.join(self.app_dir, 'resources', 'keymaps', keymap_filename))
+        keymap.load_file(os.path.join(self.app_dir, 'keymaps', keymap_filename))
         self.midi = midi.Midi()
         self.midi_output = midi.Output(self.midi.get_default_output_id(), 0)
         self.piano = Piano(keymap, self.midi_output)
