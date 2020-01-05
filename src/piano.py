@@ -4,8 +4,8 @@ class Piano:
     notes_on = {}
     start_note = 48
 
-    def __init__(self, keymap, output):
-        self.keymap = keymap
+    def __init__(self, notes_manager, output):
+        self.notes_manager = notes_manager
         self.output = output
         self.organize_notes()
 
@@ -13,8 +13,8 @@ class Piano:
         del self.output
 
     def organize_notes(self):
-        self.keymap.set_start_note(self.start_note)
-        self.keymap.organize_notes()
+        self.notes_manager.set_start_note(self.start_note)
+        self.notes_manager.organize_notes()
 
     def note_on(self, note, channel = None):
         if channel is None:
@@ -45,35 +45,6 @@ class Piano:
             for note_number in self.notes_on[channel]:
                 self.note_off(note_number, channel)
 
-    def octave_down(self):
-        self.all_notes_off()
-        notes_changed = []
-        changed_all_success = True
-        for i in self.keymap:
-            if self.keymap[i].octave_down():
-                notes_changed.append(self.keymap[i])
-            else:
-                changed_all_success = False
-        if not changed_all_success:
-            self.rollback_octave_changes(notes_changed, 'up')
-
-    def octave_up(self):
-        self.all_notes_off()
-        notes_changed = []
-        changed_all_success = True
-        for i in self.keymap:
-            if self.keymap[i].octave_up():
-                notes_changed.append(self.keymap[i])
-            else:
-                changed_all_success = False
-        if not changed_all_success:
-            self.rollback_octave_changes(notes_changed, 'down')
-
-    def rollback_octave_changes(self, notes_changed, dir_to_back):
-        method = 'octave_up' if dir_to_back == 'down' else 'octave_down'
-        for note in notes_changed:
-            getattr(note, method)()
-
     def next_instrument(self):
         if self.channels[self.current_channel]['instrument'] == 127:
             return
@@ -88,6 +59,14 @@ class Piano:
         self.ensure_channel(channel)
         self.channels[channel]['instrument'] = instrument_id
         self.output.set_instrument(instrument_id, channel)
+
+    def octave_down(self):
+        self.all_notes_off()
+        self.notes_manager.octave_down()
+
+    def octave_up(self):
+        self.all_notes_off()
+        self.notes_manager.octave_up()
 
     def next_channel(self):
         if self.current_channel == 15:

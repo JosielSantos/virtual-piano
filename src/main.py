@@ -3,7 +3,7 @@ import sys
 
 import wx
 
-from keymap import Keymap
+from note import NotesManager
 import midi
 from piano import Piano
 
@@ -26,11 +26,11 @@ class PianoApp(wx.App):
 
     def init_piano(self):
         keymap_filename = 'pianoeletronico.kmp'
-        keymap = Keymap()
-        keymap.load_file(os.path.join(self.app_dir, 'keymaps', keymap_filename))
+        notes_manager = NotesManager()
+        notes_manager.load_file(os.path.join(self.app_dir, 'keymaps', keymap_filename))
         self.midi = midi.Midi()
         self.midi_output = midi.Output(self.midi.get_default_output_id(), 0)
-        self.piano = Piano(keymap, self.midi_output)
+        self.piano = Piano(notes_manager, self.midi_output)
         self.piano.set_instrument(0, 0)
 
     def init_ui(self):
@@ -76,7 +76,7 @@ class PianoApp(wx.App):
         key = evt.GetUnicodeKey()
         if key != wx.WXK_NONE:
             key = chr(key)
-            return self.piano.keymap[key] if key in self.piano.keymap else None
+            return self.piano.notes_manager[key] if key in self.piano.notes_manager else None
 
     def toggle_multi_voice(self):
         self.piano.all_notes_off()
