@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from note import Note
+
 class Keymap(OrderedDict):
     start_note = 48
     key_list = []
@@ -14,7 +16,7 @@ class Keymap(OrderedDict):
         key_list = self.get_key_list()
         for i in range(len(key_list)):
             key = key_list[i].upper()
-            self[key] = start_note + i
+            self[key] = Note(start_note + i)
 
     def get_start_note(self):
         return self.start_note

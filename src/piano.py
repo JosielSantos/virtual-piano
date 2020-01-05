@@ -22,7 +22,7 @@ class Piano:
         self.ensure_channel(channel)
         if note not in self.notes_on[channel]:
             self.notes_on[channel].append(note)
-            self.output.note_on(note, self.channels[channel]['volume'], channel)
+            self.output.note_on(note.get_number(), self.channels[channel]['volume'], channel)
 
     def note_off(self, note, channel = None):
         if channel is None:
@@ -30,7 +30,7 @@ class Piano:
         self.ensure_channel(channel)
         if note in self.notes_on[channel]:
             self.notes_on[channel].remove(note)
-            self.output.note_off(note, channel)
+            self.output.note_off(note.get_number(), channel)
 
     def note_on_multi(self, note):
         for channel in range(len(self.channels)):
@@ -42,22 +42,37 @@ class Piano:
 
     def all_notes_off(self):
         for channel in self.notes_on:
-            for note in self.notes_on[channel]:
-                self.note_off(note, channel)
+            for note_number in self.notes_on[channel]:
+                self.note_off(note_number, channel)
 
     def octave_down(self):
-        if self.start_note == 0:
-            return
         self.all_notes_off()
-        self.start_note -= 12
-        self.organize_notes()
+        notes_changed = []
+        changed_all_success = True
+        for i in self.keymap:
+            if self.keymap[i].octave_down():
+                notes_changed.append(self.keymap[i])
+            else:
+                changed_all_success = False
+        if not changed_all_success:
+            self.rollback_octave_changes(notes_changed, 'up')
 
     def octave_up(self):
-        if self.start_note == 120:
-            return
         self.all_notes_off()
-        self.start_note += 12
-        self.organize_notes()
+        notes_changed = []
+        changed_all_success = True
+        for i in self.keymap:
+            if self.keymap[i].octave_up():
+                notes_changed.append(self.keymap[i])
+            else:
+                changed_all_success = False
+        if not changed_all_success:
+            self.rollback_octave_changes(notes_changed, 'down')
+
+    def rollback_octave_changes(self, notes_changed, dir_to_back):
+        method = 'octave_up' if dir_to_back == 'down' else 'octave_down'
+        for note in notes_changed:
+            getattr(note, method)()
 
     def next_instrument(self):
         if self.channels[self.current_channel]['instrument'] == 127:
