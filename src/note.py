@@ -25,7 +25,7 @@ class Note:
 
     def octave_up(self):
         number = self.__number + 12
-        if number > 127:
+        if number > 120:
             return False
         self.__number = number
         self.__octave += 1
@@ -73,6 +73,7 @@ class NotesManager(OrderedDict):
                 notes_changed.append(self[i])
             else:
                 changed_all_success = False
+                break
         if not changed_all_success:
             self.__rollback_octave_changes(notes_changed, 'up')
 
@@ -84,11 +85,12 @@ class NotesManager(OrderedDict):
                 notes_changed.append(self[i])
             else:
                 changed_all_success = False
+                break
         if not changed_all_success:
             self.__rollback_octave_changes(notes_changed, 'down')
 
     def __rollback_octave_changes(self, notes_changed, dir_to_back):
-        method = 'octave_up' if dir_to_back == 'down' else 'octave_down'
+        method = 'octave_up' if dir_to_back == 'up' else 'octave_down'
         for note in notes_changed:
             getattr(note, method)()
 
