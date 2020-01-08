@@ -24,7 +24,7 @@ class Piano:
         channel = self.get_channel(channel_number)
         if note not in self.notes_on[channel_number]:
             self.notes_on[channel_number].append(note)
-            self.output.note_on(note.get_number(), channel.get_volume(), channel_number)
+            self.output.note_on(note.get_number(), 127, channel_number)
 
     def note_off(self, note, channel_number = None):
         if channel_number is None:
@@ -98,7 +98,11 @@ class Piano:
             self.previous_channel()
 
     def volume_down(self):
-        self.channels[self.current_channel].volume_down(10)
+        channel = self.get_channel(self.current_channel)
+        channel.volume_down(10)
+        self.output.set_channel_volume(channel.get_volume(), self.current_channel)
 
     def volume_up(self):
-        self.channels[self.current_channel].volume_up(10)
+        channel = self.get_channel(self.current_channel)
+        channel.volume_up(10)
+        self.output.set_channel_volume(channel.get_volume(), self.current_channel)
