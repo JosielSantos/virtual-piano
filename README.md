@@ -11,7 +11,3 @@ A midi virtual piano
 * Delete: Deletes the actual channel and go to the previous one (channel 1 can not be deleted)
 * F8 / F9: Volume down / up
 * Tab / Shift+Tab: Pan current channel
-
-## Known bugs
-
-* Non-ASCII characters are not recognized. Experiments in the [bug_acentos](https://github.com/JosielSantos/virtual-piano/tree/bug_acentos) branch.
