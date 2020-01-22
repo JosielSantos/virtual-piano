@@ -70,6 +70,20 @@ class Piano:
         self.all_notes_off()
         self.notes_manager.octave_up()
 
+    def pan(self, back = False):
+        channel = self.get_channel(self.current_channel)
+        direction = channel.get_direction()
+        direction = direction -1 if back else direction + 1
+        direction = -1 if direction > 1 else direction
+        direction = 1 if direction < -1 else direction
+        channel.set_direction(direction)
+        if direction == channel.DIRECTION_LEFT:
+            self.output.pan_left(self.current_channel)
+        elif direction == channel.DIRECTION_MIDDLE:
+            self.output.pan_middle(self.current_channel)
+        else:
+            self.output.pan_right(self.current_channel)
+
     def next_channel(self):
         if self.current_channel == 15:
             return

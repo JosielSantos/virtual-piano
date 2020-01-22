@@ -38,16 +38,17 @@ class PianoApp(wx.App):
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         self.Bind(wx.EVT_KEY_UP, self.on_key_up)
         self.functions_keymap = {
-            wx.WXK_RIGHT: self.piano.next_instrument,
-            wx.WXK_LEFT: self.piano.previous_instrument,
-            wx.WXK_UP: self.piano.octave_up,
-            wx.WXK_DOWN: self.piano.octave_down,
-            wx.WXK_PAGEUP: self.piano.next_channel,
-            wx.WXK_PAGEDOWN: self.piano.previous_channel,
-            wx.WXK_DELETE: self.piano.delete_current_channel,
-            wx.WXK_F8: self.piano.volume_down,
-            wx.WXK_F9: self.piano.volume_up,
+            wx.WXK_RIGHT: lambda evt: self.piano.next_instrument(),
+            wx.WXK_LEFT: lambda evt: self.piano.previous_instrument(),
+            wx.WXK_UP: lambda evt: self.piano.octave_up(),
+            wx.WXK_DOWN: lambda evt: self.piano.octave_down(),
+            wx.WXK_PAGEUP: lambda evt: self.piano.next_channel(),
+            wx.WXK_PAGEDOWN: lambda evt: self.piano.previous_channel(),
+            wx.WXK_DELETE: lambda evt: self.piano.delete_current_channel(),
+            wx.WXK_F8: lambda evt: self.piano.volume_down(),
+            wx.WXK_F9: lambda evt: self.piano.volume_up(),
             wx.WXK_BACK: self.toggle_multi_voice,
+            wx.WXK_TAB: self.pan,
         }
         self.mainFrame.Show(True)
 
@@ -56,7 +57,7 @@ class PianoApp(wx.App):
         if note is None:
             key = evt.GetKeyCode()
             if key in self.functions_keymap:
-                self.functions_keymap[key]()
+                self.functions_keymap[key](evt)
         else:
             if self.multi_voice:
                 self.piano.note_on_multi(note)
@@ -78,9 +79,13 @@ class PianoApp(wx.App):
             key = chr(key)
             return self.piano.notes_manager[key] if key in self.piano.notes_manager else None
 
-    def toggle_multi_voice(self):
+    def toggle_multi_voice(self, evt):
         self.piano.all_notes_off()
         self.multi_voice = not self.multi_voice
+
+    def pan(self, evt):
+        back = True if evt.GetModifiers() == wx.MOD_SHIFT else False
+        self.piano.pan(back)
 
 
 if __name__ == '__main__':

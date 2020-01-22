@@ -24,5 +24,14 @@ class Output(pygame.midi.Output):
     def set_channel_volume(self, volume, channel_number = 0):
         self.control_change(7, volume, channel_number)
 
+    def pan_left(self, channel_number):
+        self.control_change(10, 0, channel_number)
+
+    def pan_middle(self, channel_number):
+        self.control_change(10, 64, channel_number)
+
+    def pan_right(self, channel_number):
+        self.control_change(10, 127, channel_number)
+
     def control_change(self, control, value, channel_number):
         super().write_short(0xB0 + channel_number, control, value)
