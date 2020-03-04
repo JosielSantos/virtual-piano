@@ -7,18 +7,11 @@ from char_utils import unicode_workaround
 import midi
 from note import NotesManager
 from piano import Piano
+import util
 
 class PianoApp(wx.App):
     functions_keymap = {}
     multi_voice = False
-
-    def __init__(self, *args, **kwargs):
-        self.frozen = getattr(sys, 'frozen', False)
-        if self.frozen:
-            self.app_dir = os.path.dirname(os.path.abspath(__file__))
-        else:
-            self.app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        wx.App.__init__(self, *args, **kwargs)
 
     def OnInit(self):
         self.init_piano()
@@ -28,7 +21,7 @@ class PianoApp(wx.App):
     def init_piano(self):
         keymap_filename = 'pianoeletronico.kmp'
         notes_manager = NotesManager()
-        notes_manager.load_file(os.path.join(self.app_dir, 'keymaps', keymap_filename))
+        notes_manager.load_file(os.path.join(util.get_app_dir(), 'keymaps', keymap_filename))
         self.midi = midi.Midi()
         self.midi_output = midi.Output(self.midi.get_default_output_id(), 0)
         self.piano = Piano(notes_manager, self.midi_output)
