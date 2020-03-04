@@ -1,5 +1,4 @@
 import os.path
-import sys
 
 import wx
 
@@ -21,7 +20,7 @@ class PianoApp(wx.App):
     def init_piano(self):
         keymap_filename = 'pianoeletronico.kmp'
         notes_manager = NotesManager()
-        notes_manager.load_file(os.path.join(util.get_app_dir(), 'keymaps', keymap_filename))
+        notes_manager.load_file(util.app_file_path(os.path.join('keymaps', keymap_filename)))
         self.midi = midi.Midi()
         self.midi_output = midi.Output(self.midi.get_default_output_id(), 0)
         self.piano = Piano(notes_manager, self.midi_output)
