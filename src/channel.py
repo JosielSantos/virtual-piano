@@ -37,13 +37,13 @@ class Channel:
     def next_instrument(self):
         instrument = self.__instrument + 1
         if instrument > 127:
-            return
+            instrument = 0
         self.__instrument = instrument
 
     def previous_instrument(self):
         instrument = self.__instrument - 1
         if instrument < 0 :
-            return
+            instrument = 127
         self.__instrument = instrument
 
     def volume_down(self, num = 10):
