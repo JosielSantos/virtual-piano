@@ -1,5 +1,5 @@
 import os.path
-from note import NotesManager
+from notes_manager import NotesManager
 import validate
 import util
 
