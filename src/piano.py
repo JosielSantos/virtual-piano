@@ -51,6 +51,16 @@ class Piano:
         channel = self.get_channel(channel_number)
         channel.notes_manager.octave_up()
 
+    def semitone_down(self, total, channel_number):
+        self.all_notes_off()
+        channel = self.get_channel(channel_number)
+        channel.notes_manager.semitone_down(total)
+
+    def semitone_up(self, total, channel_number):
+        self.all_notes_off()
+        channel = self.get_channel(channel_number)
+        channel.notes_manager.semitone_up(total)
+
     def pan(self, back, channel_number):
         channel = self.get_channel(channel_number)
         direction = channel.get_direction()
