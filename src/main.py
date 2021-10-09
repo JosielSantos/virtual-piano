@@ -1,6 +1,6 @@
 import wx
 
-from char_utils import unicode_workaround
+from util import char
 import midi
 from piano import Piano
 
@@ -70,7 +70,7 @@ class PianoApp(wx.App):
         key = evt.GetUnicodeKey()
         if key != wx.WXK_NONE:
             if key > 127:
-                key = unicode_workaround(chr(key).encode('utf-8'))
+                key = char.unicode_workaround(chr(key).encode('utf-8'))
             return self.piano.get_note(key, channel_number)
 
     def toggle_multi_voice(self, evt):

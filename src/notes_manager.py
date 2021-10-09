@@ -1,8 +1,7 @@
 from collections import OrderedDict
 
-from char_utils import unicode_workaround
 from models.note import Note
-import validate
+from util import char, validate
 
 class NotesManager(OrderedDict):
     '''A dictionary of notes. This class is responsible for associating keys with notes and apply transformations (octave change, for example) to all notes'''
@@ -17,7 +16,7 @@ class NotesManager(OrderedDict):
     def organize_notes(self):
         start_note = self.get_start_note()
         for i in range(len(self.__key_list)):
-            key = unicode_workaround(self.__key_list[i].upper())
+            key = char.unicode_workaround(self.__key_list[i].upper())
             self[key] = Note(start_note + i)
 
     def get_start_note(self):

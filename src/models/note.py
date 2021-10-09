@@ -1,4 +1,4 @@
-import validate
+from util import validate
 
 class Note:
     def __init__(self, number):

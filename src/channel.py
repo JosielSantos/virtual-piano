@@ -1,7 +1,6 @@
 import os.path
 from notes_manager import NotesManager
-import validate
-import util
+from util import app, validate
 
 class Channel:
     DIRECTION_LEFT = -1
@@ -45,7 +44,7 @@ class Channel:
     def load_notes_manager(self):
         keymap_filename = 'pianoeletronico.kmp'
         self.__notes_manager = NotesManager()
-        self.__notes_manager.load_file(util.app_file_path(os.path.join('keymaps', keymap_filename)))
+        self.__notes_manager.load_file(app.file_path(os.path.join('keymaps', keymap_filename)))
         self.__notes_manager.set_start_note(self.__start_note)
         self.__notes_manager.organize_notes()
 
