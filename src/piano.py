@@ -22,7 +22,7 @@ class Piano:
             self.output.note_off(note.get_number(), channel_number)
 
     def all_notes_off(self):
-        for channel_number in range(len(self.channels)):
+        for channel_number in self.channels.keys():
             for note_number in self.channels[channel_number].notes_on:
                 self.note_off(note_number, channel_number)
 
@@ -37,29 +37,24 @@ class Piano:
         self.output.set_instrument(channel.get_instrument(), channel_number)
 
     def set_instrument(self, instrument_id, channel_number):
-        channel = self.get_channel(channel_number)
-        channel.set_instrument(instrument_id)
+        self.get_channel(channel_number).set_instrument(instrument_id)
         self.output.set_instrument(instrument_id, channel_number)
 
     def octave_down(self, channel_number):
         self.all_notes_off()
-        channel = self.get_channel(channel_number)
-        channel.notes_manager.octave_down()
+        self.get_channel(channel_number).octave_down()
 
     def octave_up(self, channel_number):
         self.all_notes_off()
-        channel = self.get_channel(channel_number)
-        channel.notes_manager.octave_up()
+        self.get_channel(channel_number).octave_up()
 
     def semitone_down(self, total, channel_number):
         self.all_notes_off()
-        channel = self.get_channel(channel_number)
-        channel.notes_manager.semitone_down(total)
+        self.get_channel(channel_number).semitone_down(total)
 
     def semitone_up(self, total, channel_number):
         self.all_notes_off()
-        channel = self.get_channel(channel_number)
-        channel.notes_manager.semitone_up(total)
+        self.get_channel(channel_number).semitone_up(total)
 
     def pan(self, back, channel_number):
         channel = self.get_channel(channel_number)
@@ -97,4 +92,5 @@ class Piano:
         self.output.set_channel_volume(channel.get_volume(), channel_number)
 
     def get_note(self, key, channel_number):
-        return self.channels[channel_number].notes_manager[key] if key in self.channels[channel_number].notes_manager else None
+        channel = self.get_channel(channel_number)
+        return channel.get_note(key)

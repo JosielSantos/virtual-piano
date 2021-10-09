@@ -7,9 +7,10 @@ class Channel:
     DIRECTION_LEFT = -1
     DIRECTION_MIDDLE = 0
     DIRECTION_RIGHT = 1
-    notes_manager = None
+
     notes_on = []
-    start_note = 48
+    __notes_manager = None
+    __start_note = 48
 
     def __init__(self, instrument = 0, volume = 127, direction = 0):
         self.set_instrument(instrument)
@@ -43,10 +44,10 @@ class Channel:
 
     def load_notes_manager(self):
         keymap_filename = 'pianoeletronico.kmp'
-        self.notes_manager = NotesManager()
-        self.notes_manager.load_file(util.app_file_path(os.path.join('keymaps', keymap_filename)))
-        self.notes_manager.set_start_note(self.start_note)
-        self.notes_manager.organize_notes()
+        self.__notes_manager = NotesManager()
+        self.__notes_manager.load_file(util.app_file_path(os.path.join('keymaps', keymap_filename)))
+        self.__notes_manager.set_start_note(self.__start_note)
+        self.__notes_manager.organize_notes()
 
     def note_on(self, note):
         if note not in self.notes_on:
@@ -79,3 +80,18 @@ class Channel:
         if volume > 127:
             volume = 127
         self.__volume = volume
+
+    def get_note(self, key):
+        return self.__notes_manager[key] if key in self.__notes_manager else None
+
+    def octave_down(self):
+        self.__notes_manager.octave_down()
+
+    def octave_up(self):
+        self.__notes_manager.octave_up()
+
+    def semitone_down(self, total):
+        self.__notes_manager.semitone_down(total)
+
+    def semitone_up(self, total):
+        self.__notes_manager.semitone_up(total)
