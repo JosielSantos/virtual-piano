@@ -1,16 +1,14 @@
-import os.path
-
 import wx
 
 from char_utils import unicode_workaround
 import midi
-from note import NotesManager
 from piano import Piano
-import util
 
 class PianoApp(wx.App):
     functions_keymap = {}
     multi_voice = False
+    active_channels = []
+    current_channel = 0
 
     def OnInit(self):
         self.init_piano()
@@ -18,12 +16,10 @@ class PianoApp(wx.App):
         return True
 
     def init_piano(self):
-        keymap_filename = 'pianoeletronico.kmp'
-        notes_manager = NotesManager()
-        notes_manager.load_file(util.app_file_path(os.path.join('keymaps', keymap_filename)))
         self.midi = midi.Midi()
         self.midi_output = midi.Output(self.midi.get_default_output_id(), 0)
-        self.piano = Piano(notes_manager, self.midi_output)
+        self.piano = Piano(self.midi_output)
+        self.active_channels.append(0)
         self.piano.set_instrument(0, 0)
 
     def init_ui(self):
@@ -31,47 +27,51 @@ class PianoApp(wx.App):
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         self.Bind(wx.EVT_KEY_UP, self.on_key_up)
         self.functions_keymap = {
-            wx.WXK_RIGHT: lambda evt: self.piano.next_instrument(),
-            wx.WXK_LEFT: lambda evt: self.piano.previous_instrument(),
-            wx.WXK_UP: lambda evt: self.piano.octave_up(),
-            wx.WXK_DOWN: lambda evt: self.piano.octave_down(),
-            wx.WXK_PAGEUP: lambda evt: self.piano.next_channel(),
-            wx.WXK_PAGEDOWN: lambda evt: self.piano.previous_channel(),
-            wx.WXK_DELETE: lambda evt: self.piano.delete_current_channel(),
-            wx.WXK_F8: lambda evt: self.piano.volume_down(),
-            wx.WXK_F9: lambda evt: self.piano.volume_up(),
+            wx.WXK_RIGHT: lambda evt: self.piano.next_instrument(self.current_channel),
+            wx.WXK_LEFT: lambda evt: self.piano.previous_instrument(self.current_channel),
+            wx.WXK_UP: lambda evt: self.piano.octave_up(self.current_channel),
+            wx.WXK_DOWN: lambda evt: self.piano.octave_down(self.current_channel),
+            wx.WXK_PAGEUP: lambda evt: self.next_channel(),
+            wx.WXK_PAGEDOWN: lambda evt: self.previous_channel(),
+            wx.WXK_DELETE: lambda evt: self.delete_current_channel(),
+            wx.WXK_F8: lambda evt: self.piano.volume_down(self.current_channel),
+            wx.WXK_F9: lambda evt: self.piano.volume_up(self.current_channel),
             wx.WXK_BACK: self.toggle_multi_voice,
             wx.WXK_TAB: self.pan,
         }
         self.mainFrame.Show(True)
 
     def on_key_down(self, evt):
-        note = self.get_note_from_key_event(evt)
-        if note is None:
-            key = evt.GetKeyCode()
-            if key in self.functions_keymap:
-                self.functions_keymap[key](evt)
+        key = evt.GetKeyCode()
+        if key in self.functions_keymap:
+            self.functions_keymap[key](evt)
+        if self.multi_voice:
+            for channel_number in self.active_channels:
+                note = self.get_note_from_key_event(evt, channel_number)
+                if note is not None:
+                    self.piano.note_on(note, channel_number)
         else:
-            if self.multi_voice:
-                self.piano.note_on_multi(note)
-            else:
-                self.piano.note_on(note)
+            note = self.get_note_from_key_event(evt, self.current_channel)
+            if note is not None:
+                self.piano.note_on(note, self.current_channel)
 
     def on_key_up(self, evt):
-        note = self.get_note_from_key_event(evt)
-        if note is None:
-            return
         if self.multi_voice:
-            self.piano.note_off_multi(note)
+            for channel_number in self.active_channels:
+                note = self.get_note_from_key_event(evt, channel_number)
+                if note is not None:
+                    self.piano.note_off(note, channel_number)
         else:
-            self.piano.note_off(note)
+            note = self.get_note_from_key_event(evt, self.current_channel)
+            if note is not None:
+                self.piano.note_off(note, self.current_channel)
 
-    def get_note_from_key_event(self, evt):
+    def get_note_from_key_event(self, evt, channel_number):
         key = evt.GetUnicodeKey()
         if key != wx.WXK_NONE:
             if key > 127:
                 key = unicode_workaround(chr(key).encode('utf-8'))
-            return self.piano.notes_manager[key] if key in self.piano.notes_manager else None
+            return self.piano.get_note(key, channel_number)
 
     def toggle_multi_voice(self, evt):
         self.piano.all_notes_off()
@@ -79,7 +79,27 @@ class PianoApp(wx.App):
 
     def pan(self, evt):
         back = True if evt.GetModifiers() == wx.MOD_SHIFT else False
-        self.piano.pan(back)
+        self.piano.pan(back, self.current_channel)
+
+    def next_channel(self):
+        if self.current_channel == 15:
+            return
+        self.piano.all_notes_off()
+        self.current_channel += 1
+        if not self.current_channel in self.active_channels:
+            self.active_channels.append(self.current_channel)
+            self.piano.get_channel(self.current_channel)
+
+    def previous_channel(self):
+        if self.current_channel == 0:
+            return
+        self.piano.all_notes_off()
+        self.current_channel -= 1
+
+    def delete_current_channel(self):
+        self.piano.delete_channel(self.current_channel)
+        self.active_channels.remove(self.current_channel)
+        self.current_channel -= 1
 
 
 if __name__ == '__main__':
