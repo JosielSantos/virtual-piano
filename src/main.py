@@ -29,8 +29,8 @@ class PianoApp(wx.App):
         self.functions_keymap = {
             wx.WXK_RIGHT: lambda evt: self.piano.next_instrument(self.current_channel),
             wx.WXK_LEFT: lambda evt: self.piano.previous_instrument(self.current_channel),
-            wx.WXK_UP: lambda evt: self.piano.octave_up(self.current_channel),
-            wx.WXK_DOWN: lambda evt: self.piano.octave_down(self.current_channel),
+            wx.WXK_UP: lambda evt: self.tone_change_up(evt),
+            wx.WXK_DOWN: lambda evt: self.tone_change_down(evt),
             wx.WXK_PAGEUP: lambda evt: self.next_channel(),
             wx.WXK_PAGEDOWN: lambda evt: self.previous_channel(),
             wx.WXK_DELETE: lambda evt: self.delete_current_channel(),
@@ -100,6 +100,20 @@ class PianoApp(wx.App):
         self.piano.delete_channel(self.current_channel)
         self.active_channels.remove(self.current_channel)
         self.current_channel -= 1
+
+    def tone_change_up(self, evt):
+        key_modifier = evt.GetModifiers()
+        if key_modifier ==  wx.MOD_SHIFT:
+            self.piano.semitone_up(1, self.current_channel)
+        else:
+            self.piano.octave_up(self.current_channel)
+
+    def tone_change_down(self, evt):
+        key_modifier = evt.GetModifiers()
+        if key_modifier ==  wx.MOD_SHIFT:
+            self.piano.semitone_down(1, self.current_channel)
+        else:
+            self.piano.octave_down(self.current_channel)
 
 
 if __name__ == '__main__':

@@ -6,7 +6,6 @@ import validate
 class Note:
     def __init__(self, number):
         self.set_number(number)
-        self.calc_octave()
 
     def get_number(self):
         return self.__number
@@ -16,27 +15,22 @@ class Note:
         validate.midi_range(number, 'Note number')
         self.__number = number
 
-    def octave_down(self):
-        number = self.__number - 12
+    def semitone_down(self, total):
+        number = self.__number - total
         if number < 0:
             return False
         self.__number = number
-        self.__octave -= 1
         return True
 
-    def octave_up(self):
-        number = self.__number + 12
+    def semitone_up(self, total):
+        number = self.__number + total
         if number > 120:
             return False
         self.__number = number
-        self.__octave += 1
         return True
 
     def get_octave(self):
-        return self.__octave
-
-    def calc_octave(self):
-        self.__octave = self.__number // 12
+        return self.__number // 12
 
 
 class NotesManager(OrderedDict):
@@ -67,33 +61,39 @@ class NotesManager(OrderedDict):
         self.__key_list = self.__clean_key_list(key_list)
 
     def octave_down(self):
-        notes_changed = []
-        changed_all_success = True
-        for i in self:
-            if self[i].octave_down():
-                notes_changed.append(self[i])
-            else:
-                changed_all_success = False
-                break
-        if not changed_all_success:
-            self.__rollback_octave_changes(notes_changed, 'up')
+        self.semitone_down(12)
 
     def octave_up(self):
+        self.semitone_up(12)
+
+    def semitone_down(self, total):
         notes_changed = []
         changed_all_success = True
         for i in self:
-            if self[i].octave_up():
+            if self[i].semitone_down(total):
                 notes_changed.append(self[i])
             else:
                 changed_all_success = False
                 break
         if not changed_all_success:
-            self.__rollback_octave_changes(notes_changed, 'down')
+            self.__rollback_semitone_changes(total, notes_changed, 'up')
 
-    def __rollback_octave_changes(self, notes_changed, dir_to_back):
-        method = 'octave_up' if dir_to_back == 'up' else 'octave_down'
+    def semitone_up(self, total):
+        notes_changed = []
+        changed_all_success = True
+        for i in self:
+            if self[i].semitone_up(total):
+                notes_changed.append(self[i])
+            else:
+                changed_all_success = False
+                break
+        if not changed_all_success:
+            self.__rollback_semitone_changes(total, notes_changed, 'down')
+
+    def __rollback_semitone_changes(self, total, notes_changed, dir_to_back):
+        method = 'semitone_up' if dir_to_back == 'up' else 'semitone_down'
         for note in notes_changed:
-            getattr(note, method)()
+            getattr(note, method)(total)
 
     def __clean_key_list(self, key_list):
         return list(filter(
