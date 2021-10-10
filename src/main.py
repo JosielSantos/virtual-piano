@@ -135,18 +135,18 @@ class PianoApp(wx.App):
             self.piano.octave_down(self.current_channel)
 
     def select_instrument_by_number(self, target_channel):
-        current_instrument = str(self.piano.get_instrument_for_channel(target_channel))
+        current_instrument = str(self.piano.get_instrument_for_channel(target_channel) + 1)
         pressed_ok, selected_instrument = edit_dialog(self.mainFrame, "Instrument", "Enter instrument number for channel %d (from 0 to 127):" % target_channel, current_instrument)
 
         if pressed_ok:
             try:
-                instrument_number = int(selected_instrument)
+                instrument_number = int(selected_instrument) - 1
             except ValueError:
                 message_dialog(self.mainFrame, "Error", "Instrument not a number")
                 return
 
             if instrument_number < 0 or instrument_number > 127:
-                message_dialog(self.mainFrame, "Error", "Instrument number not in range from 0 to 127")
+                message_dialog(self.mainFrame, "Error", "Instrument number not in range from 1 to 128")
                 return
 
             self.piano.set_instrument(instrument_number, target_channel)
