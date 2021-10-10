@@ -136,7 +136,7 @@ class PianoApp(wx.App):
 
     def select_instrument_by_number(self, target_channel):
         current_instrument = str(self.piano.get_instrument_for_channel(target_channel) + 1)
-        pressed_ok, selected_instrument = edit_dialog(self.mainFrame, "Instrument", "Enter instrument number for channel %d (from 0 to 127):" % target_channel, current_instrument)
+        pressed_ok, selected_instrument = edit_dialog(self.mainFrame, "Instrument", "Enter instrument number for channel %d (from 1 to 128):" % target_channel, current_instrument)
 
         if pressed_ok:
             try:
