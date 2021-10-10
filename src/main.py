@@ -33,6 +33,8 @@ class PianoApp(wx.App):
         midi_output_driver = self.config.get_midi_output_driver(constants.MIDI_OUTPUT_DEFAULT_DRIVER)
         if midi_output_driver >= constants.MIDI_OUTPUT_DEFAULT_DRIVER:
             self.midi_output = midi_output_factory.factory_pygame(midi_output_driver )
+        elif midi_output_driver == constants.MIDI_OUTPUT_FLUIDSYNTH_DRIVER:
+            self.midi_output = midi_output_factory.factory_fluidsynth(self.config.get_soundfont_file_path())
         else:
             raise ValueError('MIDI driver inexistente')
         self.piano = Piano(self.midi_output)

@@ -13,6 +13,9 @@ class Config:
     def get_midi_output_driver(self, default = constants.MIDI_OUTPUT_DEFAULT_DRIVER):
         return self.__config['midi'].getint('output_driver', default)
 
+    def get_soundfont_file_path(self, default = None):
+        return self.__config['soundfont'].get('file_path', default)
+
     def __load_config(self):
         self.__config = ConfigParser()
         self.__config.read(self.__filepath)
