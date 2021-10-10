@@ -4,6 +4,7 @@ import wx
 
 from config import Config
 import constants
+from interaction_utils import edit_dialog, message_dialog
 from util import app, char
 import midi
 from piano import Piano
@@ -41,8 +42,8 @@ class PianoApp(wx.App):
 
     def init_ui(self):
         self.mainFrame = wx.Frame(parent = None, id = -1, title = 'Virtual Piano')
-        self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
-        self.Bind(wx.EVT_KEY_UP, self.on_key_up)
+        self.mainFrame.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
+        self.mainFrame.Bind(wx.EVT_KEY_UP, self.on_key_up)
         self.functions_keymap = {
             wx.WXK_RIGHT: lambda evt: self.piano.next_instrument(self.current_channel),
             wx.WXK_LEFT: lambda evt: self.piano.previous_instrument(self.current_channel),
@@ -51,6 +52,7 @@ class PianoApp(wx.App):
             wx.WXK_PAGEUP: lambda evt: self.next_channel(),
             wx.WXK_PAGEDOWN: lambda evt: self.previous_channel(),
             wx.WXK_DELETE: lambda evt: self.delete_current_channel(),
+            wx.WXK_F2: lambda evt: self.select_instrument_by_number(self.current_channel),
             wx.WXK_F8: lambda evt: self.piano.volume_down(self.current_channel),
             wx.WXK_F9: lambda evt: self.piano.volume_up(self.current_channel),
             wx.WXK_BACK: self.toggle_multi_voice,
@@ -132,6 +134,22 @@ class PianoApp(wx.App):
         else:
             self.piano.octave_down(self.current_channel)
 
+    def select_instrument_by_number(self, target_channel):
+        current_instrument = str(self.piano.get_instrument_for_channel(target_channel))
+        pressed_ok, selected_instrument = edit_dialog(self.mainFrame, "Instrument", "Enter instrument number for channel %d (from 0 to 127):" % target_channel, current_instrument)
+
+        if pressed_ok:
+            try:
+                instrument_number = int(selected_instrument)
+            except ValueError:
+                message_dialog(self.mainFrame, "Error", "Instrument not a number")
+                return
+
+            if instrument_number < 0 or instrument_number > 127:
+                message_dialog(self.mainFrame, "Error", "Instrument number not in range from 0 to 127")
+                return
+
+            self.piano.set_instrument(instrument_number, target_channel)
 
 if __name__ == '__main__':
     app = PianoApp()
