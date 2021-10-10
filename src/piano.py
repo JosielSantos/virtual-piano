@@ -31,6 +31,10 @@ class Piano:
             for note_number in self.channels[channel_number].notes_on:
                 self.note_off(note_number, channel_number)
 
+    def get_instrument_for_channel(self, channel_number):
+        channel = self.get_channel(channel_number)
+        return channel.get_instrument()
+
     def next_instrument(self, channel_number):
         channel = self.get_channel(channel_number)
         channel.next_instrument()
