@@ -5,7 +5,7 @@ import wx
 from config import Config
 import constants
 from util import app, char
-import midi
+from midi_factory import MidiOutputFactory
 from piano import Piano
 
 class PianoApp(wx.App):
@@ -29,10 +29,10 @@ class PianoApp(wx.App):
         self.config = Config(app.file_path('config.ini'))
 
     def init_piano(self):
-        self.midi = midi.Midi()
+        midi_output_factory = MidiOutputFactory()
         midi_output_driver = self.config.get_midi_output_driver(constants.MIDI_OUTPUT_DEFAULT_DRIVER)
-        if midi_output_driver == constants.MIDI_OUTPUT_DEFAULT_DRIVER:
-            self.midi_output = midi.Output(self.midi.get_default_output_id(), 0)
+        if midi_output_driver >= constants.MIDI_OUTPUT_DEFAULT_DRIVER:
+            self.midi_output = midi_output_factory.factory_pygame(midi_output_driver )
         else:
             raise ValueError('MIDI driver inexistente')
         self.piano = Piano(self.midi_output)
