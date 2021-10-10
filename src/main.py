@@ -4,7 +4,7 @@ import wx
 
 from config import Config
 import constants
-from interaction_utils import edit_dialog, message_dialog
+from util.dialogs import edit_dialog, message_dialog
 from util import app, char
 import midi
 from piano import Piano
