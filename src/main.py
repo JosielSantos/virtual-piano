@@ -29,6 +29,12 @@ class PianoApp(wx.App):
         self.config = Config(app.file_path('config.ini'))
 
     def init_piano(self):
+        self.create_midi_driver()
+        self.piano = Piano(self.midi_output)
+        self.active_channels.append(0)
+        self.piano.set_instrument(0, 0)
+
+    def create_midi_driver(self):
         midi_output_factory = MidiOutputFactory()
         midi_output_driver = self.config.get_midi_output_driver(constants.MIDI_OUTPUT_DEFAULT_DRIVER)
         if midi_output_driver >= constants.MIDI_OUTPUT_DEFAULT_DRIVER:
@@ -37,9 +43,6 @@ class PianoApp(wx.App):
             self.midi_output = midi_output_factory.factory_fluidsynth(self.config.get_soundfont_file_path())
         else:
             raise ValueError('MIDI driver inexistente')
-        self.piano = Piano(self.midi_output)
-        self.active_channels.append(0)
-        self.piano.set_instrument(0, 0)
 
     def init_ui(self):
         self.mainFrame = wx.Frame(parent = None, id = -1, title = 'Virtual Piano')
