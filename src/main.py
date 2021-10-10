@@ -1,23 +1,40 @@
+import sys
+
 import wx
 
-from util import char
+from config import Config
+import constants
+from util import app, char
 import midi
 from piano import Piano
 
 class PianoApp(wx.App):
+    config = None
     functions_keymap = {}
     multi_voice = False
     active_channels = []
     current_channel = 0
 
     def OnInit(self):
-        self.init_piano()
-        self.init_ui()
-        return True
+        try:
+            self.load_config()
+            self.init_piano()
+            self.init_ui()
+            return True
+        except Exception as exc :
+            wx.MessageBox(str(exc), 'Erro', wx.OK | wx.ICON_ERROR)
+            return False
+
+    def load_config(self):
+        self.config = Config(app.file_path('config.ini'))
 
     def init_piano(self):
         self.midi = midi.Midi()
-        self.midi_output = midi.Output(self.midi.get_default_output_id(), 0)
+        midi_output_driver = self.config.get_midi_output_driver(constants.MIDI_OUTPUT_DEFAULT_DRIVER)
+        if midi_output_driver == constants.MIDI_OUTPUT_DEFAULT_DRIVER:
+            self.midi_output = midi.Output(self.midi.get_default_output_id(), 0)
+        else:
+            raise ValueError('MIDI driver inexistente')
         self.piano = Piano(self.midi_output)
         self.active_channels.append(0)
         self.piano.set_instrument(0, 0)

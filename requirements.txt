@@ -1,2 +1,3 @@
+configparser
 pygame
 wxpython
