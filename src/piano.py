@@ -9,6 +9,11 @@ class Piano:
     def __del__(self):
         del self.output
 
+    def get_channel(self, channel_number):
+        if channel_number not in self.channels:
+            self.channels[channel_number] = Channel(0, 127)
+        return self.channels[channel_number]
+
     def note_on(self, note, channel_number):
         channel = self.get_channel(channel_number)
         if note not in channel.notes_on:
@@ -70,11 +75,6 @@ class Piano:
         else:
             self.output.pan_right(channel_number)
 
-    def get_channel(self, channel_number):
-        if channel_number not in self.channels:
-            self.channels[channel_number] = Channel(0, 127)
-        return self.channels[channel_number]
-
     def delete_channel(self, channel_number):
         self.all_notes_off()
         if channel_number > 0:
@@ -92,5 +92,4 @@ class Piano:
         self.output.set_channel_volume(channel.get_volume(), channel_number)
 
     def get_note(self, key, channel_number):
-        channel = self.get_channel(channel_number)
-        return channel.get_note(key)
+        return self.get_channel(channel_number).get_note(key)
