@@ -1,2 +1,5 @@
 [midi]
     output_driver=-1
+
+[soundfont]
+file_path=
