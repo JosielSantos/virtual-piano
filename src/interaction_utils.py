@@ -13,10 +13,7 @@ def edit_dialog(parent, title, description, default_value = "", style=wx.OK | wx
         Returns two values:
             The first value is a boolean that specifies if the user pressed the OK button.
             The second value will depend if the OK button was pressed. If the OK button was pressed, it returns the entered text. Else it returns an empty string."""
-    with wx.TextEntryDialog(parent, description, title, style = style) as dialog:
-        if default_value:
-            dialog.SetValue(default_value)
-
+    with wx.TextEntryDialog(parent, description, title, value = default_value, style = style) as dialog:
         if dialog.ShowModal() == wx.ID_OK:
             return (True, dialog.GetValue())
         else:
