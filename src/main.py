@@ -2,6 +2,7 @@ import wx
 
 from config import Config
 import constants
+from exceptions import UserError
 from util.dialogs import edit_dialog, message_dialog
 from util import app, char
 from midi_factory import MidiOutputFactory
@@ -20,8 +21,8 @@ class PianoApp(wx.App):
             self.init_piano()
             self.init_ui()
             return True
-        except Exception as exc :
-            wx.MessageBox(str(exc), 'Erro', wx.OK | wx.ICON_ERROR)
+        except UserError as user_error:
+            wx.MessageBox(str(user_error), 'Erro', wx.OK | wx.ICON_ERROR)
             return False
 
     def load_config(self):
@@ -41,7 +42,7 @@ class PianoApp(wx.App):
         elif midi_output_driver == constants.MIDI_OUTPUT_FLUIDSYNTH_DRIVER:
             self.midi_output = midi_output_factory.factory_fluidsynth(self.config.get_soundfont_file_path())
         else:
-            raise ValueError('MIDI driver inexistente')
+            raise UserError('Erro de configuração: MIDI driver inexistente')
 
     def init_ui(self):
         self.mainFrame = wx.Frame(parent = None, id = -1, title = 'Virtual Piano')
@@ -140,19 +141,17 @@ class PianoApp(wx.App):
     def select_instrument_by_number(self, target_channel):
         current_instrument = str(self.piano.get_instrument_for_channel(target_channel) + 1)
         pressed_ok, selected_instrument = edit_dialog(self.mainFrame, "Instrument", "Enter instrument number for channel %d (from 1 to 128):" % target_channel, current_instrument)
-
         if pressed_ok:
             try:
                 instrument_number = int(selected_instrument) - 1
             except ValueError:
                 message_dialog(self.mainFrame, "Error", "Instrument not a number")
                 return
-
             if instrument_number < 0 or instrument_number > 127:
                 message_dialog(self.mainFrame, "Error", "Instrument number not in range from 1 to 128")
                 return
-
             self.piano.set_instrument(instrument_number, target_channel)
+
 
 if __name__ == '__main__':
     app = PianoApp()
