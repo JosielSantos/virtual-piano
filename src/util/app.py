@@ -9,3 +9,8 @@ def base_dir():
 
 def file_path(name):
     return path.join(base_dir(), name)
+
+def config_file_path():
+    if path.exists(file_path('config.ini')):
+        return file_path('config.ini')
+    return file_path('config.ini.dist')

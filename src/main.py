@@ -27,7 +27,7 @@ class PianoApp(wx.App):
             return False
 
     def load_config(self):
-        self.config = Config(app.file_path('config.ini'))
+        self.config = Config(app.config_file_path())
 
     def init_piano(self):
         self.create_midi_driver()
