@@ -3,7 +3,8 @@ from channel import Channel
 class Piano:
     channels = {}
 
-    def __init__(self, output):
+    def __init__(self, keymap_file_path, output):
+        self.keymap_file_path = keymap_file_path
         self.output = output
 
     def __del__(self):
@@ -11,7 +12,7 @@ class Piano:
 
     def get_channel(self, channel_number):
         if channel_number not in self.channels:
-            self.channels[channel_number] = Channel(0, 127)
+            self.channels[channel_number] = Channel(0, 127, Channel.DIRECTION_MIDDLE, self.keymap_file_path)
         return self.channels[channel_number]
 
     def note_on(self, note, channel_number):

@@ -11,11 +11,12 @@ class Channel:
     __notes_manager = None
     __start_note = 48
 
-    def __init__(self, instrument = 0, volume = 127, direction = 0):
+    def __init__(self, instrument, volume, direction, keymap_file_path):
         self.set_instrument(instrument)
         self.set_volume(volume)
         self.set_direction(direction)
-        self.load_notes_manager()
+        self.keymap_file_path = keymap_file_path
+        self.__load_notes_manager()
 
     def get_instrument(self):
         return self.__instrument
@@ -41,10 +42,9 @@ class Channel:
             raise ValueError('Invalid direction')
         self.__direction = direction
 
-    def load_notes_manager(self):
-        keymap_filename = 'pianoeletronico.kmp'
+    def __load_notes_manager(self):
         self.__notes_manager = NotesManager()
-        self.__notes_manager.load_file(app.file_path(os.path.join('keymaps', keymap_filename)))
+        self.__notes_manager.load_file(self.keymap_file_path)
         self.__notes_manager.set_start_note(self.__start_note)
         self.__notes_manager.organize_notes()
 

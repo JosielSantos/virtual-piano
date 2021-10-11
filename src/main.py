@@ -1,5 +1,3 @@
-import sys
-
 import wx
 
 from config import Config
@@ -31,7 +29,7 @@ class PianoApp(wx.App):
 
     def init_piano(self):
         self.create_midi_driver()
-        self.piano = Piano(self.midi_output)
+        self.piano = Piano(self.config.get_keymap_file_path('pianoeletronico.kmp'), self.midi_output)
         self.active_channels.append(0)
         self.piano.set_instrument(0, 0)
 

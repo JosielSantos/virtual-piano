@@ -6,28 +6,32 @@ Um piano virtual MIDI.
 
 Primeiro, copie o arquivo 'config.ini.dist' para 'config.ini'.
 
-A configuração inicial utiliza o driver padrão de MIDI do seu sistema.
+A configuraÃ§Ã£o inicial utiliza o driver padrÃ£o de MIDI do seu sistema.
 
-Agora instale as dependências: `pip install -r requirements.txt`
+Agora instale as dependÃªncias: `pip install -r requirements.txt`
 
 Para executar, Rode o comando `python src/main.py`
 
 ### Teclas de atalho
 
 * Setas direita / esquerda: navegar entre os instrumentos
-* F2: Selecionar instrumento por número (1 - 128)
+* F2: Selecionar instrumento por nÃºmero (1 - 128)
 * Setas cima / baixo: oitava acima / abaixo no canal atual
 * shift + seta cima / baixo: Meio tom acima / abaixo no canal atual
 * F8 / F9: abaixa / aumenta o volume do canal atual
-* Tab / Shift+Tab: muda a direção no canal atual (direita, esquerda, meio)
+* Tab / Shift+Tab: muda a direÃ§Ã£o no canal atual (direita, esquerda, meio)
 * Pageup / Pagedown: navegar entre os canais
 * Backspace: Tocar todos os canais selecionados (multi voice)
-* Delete: Reseta as configurações do canal atual e volta para o anterior (não funciona no canal 1)
+* Delete: Reseta as configuraÃ§Ãµes do canal atual e volta para o anterior (nÃ£o funciona no canal 1)
 
-## Configuração
+## ConfiguraÃ§Ã£o
+
+### Mapa de teclas (general.keymap_file_path)
+
+Aqui vocÃª pode preencher com um caminho absoluto (/home/a/b/c.kmp) ou com o nome de um arquivo que esteja dentro da pasta 'keymaps'.
 
 ### Dispositivo MIDI (midi.output_driver)
 
 * maior ou igual a 0 - Um driver do sistema
-* -1 - Dispositivo padrão do sistema
-* -2 - Fluidsynth (necessário configurar a seção 'soundfont')
+* -1 - Dispositivo padrÃ£o do sistema
+* -2 - Fluidsynth (necessÃ¡rio configurar a seÃ§Ã£o 'soundfont')

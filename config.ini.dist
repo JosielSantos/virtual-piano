@@ -1,3 +1,6 @@
+[general]
+    keymap_file_path=pianoeletronico.kmp
+
 [midi]
     output_driver=-1
 
