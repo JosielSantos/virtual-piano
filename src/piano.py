@@ -13,6 +13,7 @@ class Piano:
     def get_channel(self, channel_number):
         if channel_number not in self.channels:
             self.channels[channel_number] = Channel(0, 127, Channel.DIRECTION_MIDDLE, self.keymap_file_path)
+            self.output.set_instrument(0, channel_number)
         return self.channels[channel_number]
 
     def note_on(self, note, channel_number):
