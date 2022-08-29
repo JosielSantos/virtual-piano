@@ -99,3 +99,6 @@ class Piano:
 
     def get_note(self, key, channel_number):
         return self.get_channel(channel_number).get_note(key)
+
+    def get_start_note(self, channel_number):
+        return self.get_channel(channel_number).get_start_note()

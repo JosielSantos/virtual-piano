@@ -31,12 +31,13 @@ class NotesManager(OrderedDict):
         self.__key_list = self.__clean_key_list(key_list)
 
     def octave_down(self):
-        self.semitone_down(12)
+        return self.semitone_down(12)
 
     def octave_up(self):
-        self.semitone_up(12)
+        return self.semitone_up(12)
 
     def semitone_down(self, total):
+        start_note = self.get_start_note()
         notes_changed = []
         changed_all_success = True
         for i in self:
@@ -47,8 +48,13 @@ class NotesManager(OrderedDict):
                 break
         if not changed_all_success:
             self.__rollback_semitone_changes(total, notes_changed, 'up')
+        else:
+            start_note = notes_changed [0]
+        self.set_start_note(start_note.get_number())
+        return start_note
 
     def semitone_up(self, total):
+        start_note = self.get_start_note()
         notes_changed = []
         changed_all_success = True
         for i in self:
@@ -59,6 +65,10 @@ class NotesManager(OrderedDict):
                 break
         if not changed_all_success:
             self.__rollback_semitone_changes(total, notes_changed, 'down')
+        else:
+            start_note = notes_changed [0]
+        self.set_start_note(start_note.get_number())
+        return start_note
 
     def __rollback_semitone_changes(self, total, notes_changed, dir_to_back):
         method = 'semitone_up' if dir_to_back == 'up' else 'semitone_down'

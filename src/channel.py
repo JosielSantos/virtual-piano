@@ -84,13 +84,20 @@ class Channel:
         return self.__notes_manager[key] if key in self.__notes_manager else None
 
     def octave_down(self):
-        self.__notes_manager.octave_down()
+        self.__start_note = self.__notes_manager.octave_down()
+        return self.__start_note
 
     def octave_up(self):
-        self.__notes_manager.octave_up()
+        self.__start_note = self.__notes_manager.octave_up()
+        return self.__start_note
 
     def semitone_down(self, total):
-        self.__notes_manager.semitone_down(total)
+        self.__start_note = self.__notes_manager.semitone_down(total)
+        return self.__start_note
 
     def semitone_up(self, total):
-        self.__notes_manager.semitone_up(total)
+        self.__start_note = self.__notes_manager.semitone_up(total)
+        return self.__start_note
+
+    def get_start_note(self):
+        return self.__notes_manager.get_start_note()
