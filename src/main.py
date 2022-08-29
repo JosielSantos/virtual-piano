@@ -45,7 +45,7 @@ class PianoApp(wx.App):
             raise UserError('Erro de configuração: MIDI driver inexistente')
 
     def init_ui(self):
-        self.mainFrame = wx.Frame(parent = None, id = -1, title = 'Virtual Piano')
+        self.mainFrame = wx.Frame(parent = None, id = -1, title = self.get_window_title())
         self.mainFrame.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         self.mainFrame.Bind(wx.EVT_KEY_UP, self.on_key_up)
         self.functions_keymap = {
@@ -112,17 +112,20 @@ class PianoApp(wx.App):
         if not self.current_channel in self.active_channels:
             self.active_channels.append(self.current_channel)
             self.piano.get_channel(self.current_channel)
+        self.mainFrame.SetTitle(self.get_window_title())
 
     def previous_channel(self):
         if self.current_channel == 0:
             return
         self.piano.all_notes_off()
         self.current_channel -= 1
+        self.mainFrame.SetTitle(self.get_window_title())
 
     def delete_current_channel(self):
         self.piano.delete_channel(self.current_channel)
         self.active_channels.remove(self.current_channel)
         self.current_channel -= 1
+        self.mainFrame.SetTitle(self.get_window_title())
 
     def tone_change_up(self, evt):
         key_modifier = evt.GetModifiers()
@@ -130,6 +133,7 @@ class PianoApp(wx.App):
             self.piano.semitone_up(1, self.current_channel)
         else:
             self.piano.octave_up(self.current_channel)
+        self.mainFrame.SetTitle(self.get_window_title())
 
     def tone_change_down(self, evt):
         key_modifier = evt.GetModifiers()
@@ -137,6 +141,7 @@ class PianoApp(wx.App):
             self.piano.semitone_down(1, self.current_channel)
         else:
             self.piano.octave_down(self.current_channel)
+        self.mainFrame.SetTitle(self.get_window_title())
 
     def select_instrument_by_number(self, target_channel):
         current_instrument = str(self.piano.get_instrument_for_channel(target_channel) + 1)
@@ -151,6 +156,13 @@ class PianoApp(wx.App):
                 message_dialog(self.mainFrame, "Error", "Instrument number not in range from 1 to 128")
                 return
             self.piano.set_instrument(instrument_number, target_channel)
+
+    def get_window_title(self):
+        return 'Virtual Piano - %d[%s]' %(self.current_channel, self.get_note_name(self.piano.get_start_note(self.current_channel)))
+
+    def get_note_name(self, note_number):
+        names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+        return names[note_number % 12]
 
 
 if __name__ == '__main__':
