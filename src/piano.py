@@ -1,14 +1,10 @@
 from channel import Channel
 
 class Piano:
-    channels = {}
-
     def __init__(self, keymap_file_path, output):
+        self.channels = {}
         self.keymap_file_path = keymap_file_path
         self.output = output
-
-    def __del__(self):
-        del self.output
 
     def get_channel(self, channel_number):
         if channel_number not in self.channels:

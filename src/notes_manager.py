@@ -5,10 +5,8 @@ from util import char, validate
 
 class NotesManager(OrderedDict):
     '''A dictionary of notes. This class is responsible for associating keys with notes and apply transformations (octave change, for example) to all notes'''
-
-    __start_note = 48
-
     def load_file(self, filename):
+        self.__start_note = 48
         with open(filename) as file:
             self.set_key_list(file.readlines())
         return True

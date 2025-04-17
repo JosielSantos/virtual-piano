@@ -7,11 +7,10 @@ class Channel:
     DIRECTION_MIDDLE = 0
     DIRECTION_RIGHT = 1
 
-    notes_on = []
-    __notes_manager = None
-    __start_note = 48
-
     def __init__(self, instrument, volume, direction, keymap_file_path):
+        self.notes_on = []
+        self.__notes_manager = None
+        self.__start_note = 48
         self.set_instrument(instrument)
         self.set_volume(volume)
         self.set_direction(direction)
