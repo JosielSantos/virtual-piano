@@ -1,12 +1,12 @@
 use midir::MidiOutput as MidirLib;
 use anyhow::{Context, Result};
-use super::MidiOutput;
+use super::MidiDriver;
 
-pub struct MidirOutput {
+pub struct MidirDriver {
     conn: midir::MidiOutputConnection,
 }
 
-impl MidirOutput {
+impl MidirDriver {
     pub fn new() -> Result<Self> {
         let midi_out = MidirLib::new("piano-rs")?;
         let ports = midi_out.ports();
@@ -33,11 +33,11 @@ impl MidirOutput {
             .connect(port, "piano-rs")
             .context("Falha ao conectar à porta MIDI")?;
 
-        Ok(MidirOutput { conn })
+        Ok(MidirDriver { conn })
     }
 }
 
-impl MidiOutput for MidirOutput {
+impl MidiDriver for MidirDriver {
     fn note_on(&mut self, note: u8, velocity: u8, channel: u8) {
         let _ = self.conn.send(&[0x90 | (channel & 0x0F), note, velocity]);
     }

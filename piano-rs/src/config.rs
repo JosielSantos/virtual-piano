@@ -43,10 +43,16 @@ impl Config {
         }
     }
 
-    pub fn get_midi_output_driver(&self) -> i32 {
-        self.get("midi", "output_driver")
-            .and_then(|v| v.trim().parse().ok())
-            .unwrap_or(-1)
+    pub fn get_midi_driver(&self) -> String {
+        self.get("midi", "driver")
+            .unwrap_or("system_default")
+            .to_lowercase()
+    }
+
+    pub fn get_soundfont_path(&self) -> Option<String> {
+        self.get("soundfont", "file_path")
+            .filter(|s| !s.is_empty())
+            .map(|s| s.to_string())
     }
 }
 

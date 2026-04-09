@@ -1,0 +1,10 @@
+[general]
+    keymap_file_path=pianoeletronico.kmp
+
+[midi]
+    ; driver = system_default
+    driver = rustysynth
+
+[soundfont]
+    ; Obrigatorio quando driver=rustysynth
+    file_path=

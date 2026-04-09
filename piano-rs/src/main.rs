@@ -15,7 +15,8 @@ use winit::{
 };
 
 use config::{find_config_file, Config};
-use midi::driver_midir::MidirOutput;
+use midi::driver_rustysynth::RustySynthDriver;
+use midi::driver_midir::MidirDriver;
 use piano::Piano;
 
 #[derive(Debug)]
@@ -280,8 +281,18 @@ fn main() -> Result<()> {
     let keymap_path = config.get_keymap_file_path();
     println!("Keymap: {}", keymap_path.display());
 
-    let midi_output = MidirOutput::new()?;
-    let mut piano = Piano::new(&keymap_path, Box::new(midi_output))?;
+    let midi_driver: Box<dyn midi::MidiDriver> = match config.get_midi_driver().as_str() {
+        "rustysynth" => {
+            let sf_path = config.get_soundfont_path().unwrap_or_else(|| {
+                eprintln!("ERRO: [soundfont] file_path e obrigatorio com driver=rustysynth");
+                std::process::exit(1);
+            });
+            Box::new(RustySynthDriver::new(&sf_path)?)
+        }
+        _ => Box::new(MidirDriver::new()?),
+    };
+
+    let mut piano = Piano::new(&keymap_path, midi_driver)?;
     piano.set_instrument(0, 0);
 
     println!("Piano iniciado.");
@@ -295,4 +306,3 @@ fn main() -> Result<()> {
 
     Ok(())
 }
-

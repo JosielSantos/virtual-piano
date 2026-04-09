@@ -1,22 +1,22 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use crate::channel::{Channel, Direction};
-use crate::midi::MidiOutput;
+use crate::midi::MidiDriver;
 
 const CC_PAN: u8 = 10;
 
 pub struct Piano {
     channels: HashMap<u8, Channel>,
     keymap_path: PathBuf,
-    output: Box<dyn MidiOutput>,
+    midi_driver: Box<dyn MidiDriver>,
 }
 
 impl Piano {
-    pub fn new(keymap_path: &Path, output: Box<dyn MidiOutput>) -> anyhow::Result<Self> {
+    pub fn new(keymap_path: &Path, midi_driver: Box<dyn MidiDriver>) -> anyhow::Result<Self> {
         let mut piano = Piano {
             channels: HashMap::new(),
             keymap_path: keymap_path.to_path_buf(),
-            output,
+            midi_driver,
         };
         piano.ensure_channel(0);
         Ok(piano)
@@ -27,7 +27,7 @@ impl Piano {
             match Channel::new(&self.keymap_path) {
                 Ok(channel) => {
                     self.channels.insert(n, channel);
-                    self.output.set_instrument(0, n);
+                    self.midi_driver.set_instrument(0, n);
                 }
                 Err(e) => eprintln!("Erro ao criar canal {n}: {e}"),
             }
@@ -40,7 +40,7 @@ impl Piano {
             ch.notes_on.insert(note).then_some((note, ch.get_volume()))
         });
         if let Some((note, velocity)) = result {
-            self.output.note_on(note, velocity, channel_number);
+            self.midi_driver.note_on(note, velocity, channel_number);
         }
     }
 
@@ -50,7 +50,7 @@ impl Piano {
             ch.notes_on.remove(&note).then_some(note)
         });
         if let Some(note) = result {
-            self.output.note_off(note, channel_number);
+            self.midi_driver.note_off(note, channel_number);
         }
     }
 
@@ -62,7 +62,7 @@ impl Piano {
             }
         }
         for (ch_num, note) in to_stop {
-            self.output.note_off(note, ch_num);
+            self.midi_driver.note_off(note, ch_num);
         }
     }
 
@@ -73,10 +73,10 @@ impl Piano {
         if let Some(channel) = self.channels.get_mut(&channel_number) {
             let notes: Vec<u8> = channel.notes_on.drain().collect();
             for note in notes {
-                self.output.note_off(note, channel_number);
+                self.midi_driver.note_off(note, channel_number);
             }
         }
-        self.output.set_instrument(0, channel_number);
+        self.midi_driver.set_instrument(0, channel_number);
         self.channels.remove(&channel_number);
     }
 
@@ -92,7 +92,7 @@ impl Piano {
         if let Some(channel) = self.channels.get_mut(&channel_number) {
             channel.set_instrument(instrument);
         }
-        self.output.set_instrument(instrument, channel_number);
+        self.midi_driver.set_instrument(instrument, channel_number);
     }
 
     pub fn next_instrument(&mut self, channel_number: u8) -> u8 {
@@ -100,7 +100,7 @@ impl Piano {
             Some(ch) => ch.next_instrument(),
             None => return 0,
         };
-        self.output.set_instrument(instrument, channel_number);
+        self.midi_driver.set_instrument(instrument, channel_number);
         instrument
     }
 
@@ -109,7 +109,7 @@ impl Piano {
             Some(ch) => ch.previous_instrument(),
             None => return 0,
         };
-        self.output.set_instrument(instrument, channel_number);
+        self.midi_driver.set_instrument(instrument, channel_number);
         instrument
     }
 
@@ -134,7 +134,7 @@ impl Piano {
             Some(ch) => ch.pan_cycle(forward),
             None => return,
         };
-        self.output.control_change(CC_PAN, dir.to_midi_pan(), channel_number);
+        self.midi_driver.control_change(CC_PAN, dir.to_midi_pan(), channel_number);
     }
 
     pub fn octave_up(&mut self, channel_number: u8) -> u8 {
