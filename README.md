@@ -8,9 +8,23 @@ Primeiro, copie o arquivo 'config.ini.dist' para 'config.ini'.
 
 A configuração inicial utiliza o driver padrão de MIDI do seu sistema.
 
-Agora instale as dependências: `pip install -r requirements.txt`
+Instale o [uv](https://docs.astral.sh/uv/getting-started/installation/).
+Na pasta do projeto, instale as dependências com `uv sync --locked`.
+O uv gerencia o Python 3.13 e o ambiente `.venv` automaticamente.
 
-Para executar, Rode o comando `python src/main.py`
+Para executar, rode `uv run --locked python src/main.py` ou, no Windows,
+abra `exec.bat`. Não é necessário ativar o ambiente virtual.
+
+Se você usa [just](https://github.com/casey/just), os comandos equivalentes
+são `just install` e `just run`. Para gerar o executável no Windows,
+use `just build-windows`.
+
+As dependências ficam em `pyproject.toml`, e as versões resolvidas em
+`uv.lock`. Versione ambos; ao alterar as dependências, execute `uv lock`
+e depois `uv sync --locked`.
+
+O driver FluidSynth também exige a biblioteca nativa do FluidSynth e um
+SoundFont configurado. O uv instala o pacote Python, mas não esses arquivos.
 
 ### Teclas de atalho
 
